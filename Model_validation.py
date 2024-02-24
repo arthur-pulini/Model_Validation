@@ -8,6 +8,7 @@ from sklearn.metrics import accuracy_score
 from datetime import datetime
 from sklearn.dummy import DummyClassifier
 from sklearn.model_selection import cross_validate
+from sklearn.model_selection import KFold
 
 SEED = 1223453
 np.random.seed(SEED)
@@ -52,7 +53,7 @@ model = DecisionTreeClassifier(max_depth = 2)
 model.fit(rawTrainX, trainY)
 predictions = model.predict(rawTestX)
 accuracyScore = accuracy_score(testY, predictions)
-print("The accuracy was: %.2f " % (accuracyScore * 100))
+print("The tree accuracy was: %.2f " % (accuracyScore * 100))
 
 features = x.columns
 dotData = export_graphviz(model, out_file=None,
@@ -62,17 +63,18 @@ dotData = export_graphviz(model, out_file=None,
 grafico = graphviz.Source(dotData)
 #grafico.view()
 
-results = cross_validate(model, x, y, cv = 3)
-average = results['test_score'].mean()
-standardDeviation = results['test_score'].std()
-print("Accuracy with cross validation, 3 = [%.2f, %.2f]" % ((average - 2 * standardDeviation) * 100 , (average + 2 * standardDeviation) * 100))
+cv = KFold(n_splits= 10)
 
-results = cross_validate(model, x, y, cv = 10)
-average = results['test_score'].mean()
-standardDeviation = results['test_score'].std()
-print("Accuracy with cross validation, 10 = [%.2f, %.2f]" % ((average - 2 * standardDeviation) * 100 , (average + 2 * standardDeviation) * 100))
+def printResults (results):
+    average = results['test_score'].mean()
+    standardDeviation = results['test_score'].std()
+    print("Test results = ", results['test_score'])
+    print("Average accuracy = %.2f" % (average * 100))
+    print("Range accuracy = [%.2f, %.2f]" % ((average - 2 * standardDeviation) * 100 , (average + 2 * standardDeviation) * 100))
 
-results = cross_validate(model, x, y, cv = 5)
-average = results['test_score'].mean()
-standardDeviation = results['test_score'].std()
-print("Accuracy with cross validation, 5 = [%.2f, %.2f]" % ((average - 2 * standardDeviation) * 100 , (average + 2 * standardDeviation) * 100))
+results = cross_validate(model, x, y, cv = cv)
+printResults (results)
+
+cv = KFold(n_splits= 10, shuffle=True)
+results = cross_validate(model, x, y, cv = cv)
+printResults (results)
