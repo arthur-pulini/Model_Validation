@@ -7,8 +7,9 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
 from datetime import datetime
 from sklearn.dummy import DummyClassifier
+from sklearn.model_selection import cross_validate
 
-SEED = 5
+SEED = 1223453
 np.random.seed(SEED)
 
 uri = 'https://gist.githubusercontent.com/guilhermesilveira/4d1d4a16ccbf6ea4e0a64a38a24ec884/raw/afd05cb0c796d18f3f5a6537053ded308ba94bf7/car-prices.csv'
@@ -47,7 +48,7 @@ print("%.2f%%" % dummyAccuracy)
 
 rawTrainX, rawTestX, trainY, testY = train_test_split(x, y, test_size = 0.25, stratify = y)
 
-model = DecisionTreeClassifier(max_depth = 3)
+model = DecisionTreeClassifier(max_depth = 2)
 model.fit(rawTrainX, trainY)
 predictions = model.predict(rawTestX)
 accuracyScore = accuracy_score(testY, predictions)
@@ -59,4 +60,19 @@ dotData = export_graphviz(model, out_file=None,
                           class_names = ['no', 'yes'],
                           feature_names = features)
 grafico = graphviz.Source(dotData)
-grafico.view()
+#grafico.view()
+
+results = cross_validate(model, x, y, cv = 3)
+average = results['test_score'].mean()
+standardDeviation = results['test_score'].std()
+print("Accuracy with cross validation, 3 = [%.2f, %.2f]" % ((average - 2 * standardDeviation) * 100 , (average + 2 * standardDeviation) * 100))
+
+results = cross_validate(model, x, y, cv = 10)
+average = results['test_score'].mean()
+standardDeviation = results['test_score'].std()
+print("Accuracy with cross validation, 10 = [%.2f, %.2f]" % ((average - 2 * standardDeviation) * 100 , (average + 2 * standardDeviation) * 100))
+
+results = cross_validate(model, x, y, cv = 5)
+average = results['test_score'].mean()
+standardDeviation = results['test_score'].std()
+print("Accuracy with cross validation, 5 = [%.2f, %.2f]" % ((average - 2 * standardDeviation) * 100 , (average + 2 * standardDeviation) * 100))
