@@ -8,7 +8,7 @@ from sklearn.metrics import accuracy_score
 from datetime import datetime
 from sklearn.dummy import DummyClassifier
 from sklearn.model_selection import cross_validate
-from sklearn.model_selection import KFold
+from sklearn.model_selection import StratifiedKFold
 
 SEED = 1223453
 np.random.seed(SEED)
@@ -63,8 +63,6 @@ dotData = export_graphviz(model, out_file=None,
 grafico = graphviz.Source(dotData)
 #grafico.view()
 
-cv = KFold(n_splits= 10)
-
 def printResults (results):
     average = results['test_score'].mean()
     standardDeviation = results['test_score'].std()
@@ -72,9 +70,6 @@ def printResults (results):
     print("Average accuracy = %.2f" % (average * 100))
     print("Range accuracy = [%.2f, %.2f]" % ((average - 2 * standardDeviation) * 100 , (average + 2 * standardDeviation) * 100))
 
-results = cross_validate(model, x, y, cv = cv)
-printResults (results)
-
-cv = KFold(n_splits= 10, shuffle=True)
+cv = StratifiedKFold(n_splits= 10, shuffle=True)
 results = cross_validate(model, x, y, cv = cv)
 printResults (results)
