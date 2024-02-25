@@ -9,6 +9,7 @@ from datetime import datetime
 from sklearn.dummy import DummyClassifier
 from sklearn.model_selection import cross_validate
 from sklearn.model_selection import StratifiedKFold
+from sklearn.model_selection import GroupKFold
 
 SEED = 1223453
 np.random.seed(SEED)
@@ -72,4 +73,16 @@ def printResults (results):
 
 cv = StratifiedKFold(n_splits= 10, shuffle=True)
 results = cross_validate(model, x, y, cv = cv)
+print('StratifiedKFold results: ')
+printResults (results)
+
+#Simulando modelos de carros aleatórios para poder usar o GroupKfold
+
+np.random.seed(SEED)
+datas['model'] = datas.model_age + np.random.randint(-2, 3, size=10000)
+print(datas.model.unique())
+
+cv = GroupKFold(n_splits= 10)
+results = cross_validate(model, x, y, cv = cv, groups = datas.model)
+print('GroupKFold results: ')
 printResults (results)
