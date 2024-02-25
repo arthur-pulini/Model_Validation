@@ -10,8 +10,11 @@ from sklearn.dummy import DummyClassifier
 from sklearn.model_selection import cross_validate
 from sklearn.model_selection import StratifiedKFold
 from sklearn.model_selection import GroupKFold
+from sklearn.preprocessing import StandardScaler
+from sklearn.svm import SVC
+from sklearn.pipeline import Pipeline
 
-SEED = 1223453
+SEED = 301
 np.random.seed(SEED)
 
 uri = 'https://gist.githubusercontent.com/guilhermesilveira/4d1d4a16ccbf6ea4e0a64a38a24ec884/raw/afd05cb0c796d18f3f5a6537053ded308ba94bf7/car-prices.csv'
@@ -85,4 +88,26 @@ print(datas.model.unique())
 cv = GroupKFold(n_splits= 10)
 results = cross_validate(model, x, y, cv = cv, groups = datas.model)
 print('GroupKFold results: ')
+printResults (results)
+
+#Cross validation com StandardScaler
+scaler = StandardScaler()
+scaler.fit (trainX)
+scaledTrainX = scaler.transform(trainX)
+scaledTestX = scaler.transform(testX)
+print(scaledTestX)
+
+#Usando o GroupKFold para o SVC
+model = SVC()
+model.fit(scaledTrainX, trainY)
+predictions = model.predict(scaledTestX)
+print(predictions)
+
+accuracyScore = accuracy_score(testY, predictions) * 100
+print('The accuracy was %.2f' % accuracyScore)
+
+pipeline = Pipeline([('transformation', scaler), ('estimator', model)])
+
+cv = GroupKFold(n_splits=10)
+results = cross_validate(pipeline, x, y, cv=cv, groups=datas.model)
 printResults (results)
